@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export function SwapScreen() {
+export default function SwapScreen() {
   const [fromAmount, setFromAmount] = useState("100");
   const [toAmount, setToAmount] = useState("0.28014");
   const [fromToken, setFromToken] = useState("USDC");
