@@ -9,8 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const short = (s: string, n = 4) => `${s.slice(0, n)}...${s.slice(-n)}`;
+import { useWalletStore } from "../../src/stores/wallet-store";
 
 export default function TokenDetailScreen() {
   const { mint } = useLocalSearchParams<{ mint: string }>();
@@ -18,20 +17,25 @@ export default function TokenDetailScreen() {
   const [tokenInfo, setTokenInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const isDevnet = useWalletStore((state) => state.isDevnet);
+
   const fetchTokenInfo = async () => {
     try {
-      const res = await fetch("https://api.devnet.solana.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `https://api.${isDevnet ? "devnet" : "mainnet-beta"}.solana.com`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getTokenSupply",
+            params: [mint],
+          }),
         },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTokenSupply",
-          params: [mint],
-        }),
-      });
+      );
       const data = await res.json();
       setTokenInfo({
         mint: mint,
@@ -78,7 +82,7 @@ export default function TokenDetailScreen() {
             style={styles.linkButton}
             onPress={() =>
               Linking.openURL(
-                `https://explorer.solana.com/address/${mint}?cluster=devnet`,
+                `https://explorer.solana.com/address/${mint}?cluster=${isDevnet ? "devnet" : ""}`,
               )
             }
           >
